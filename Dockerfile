@@ -1,4 +1,4 @@
-FROM debian:stretch as webp
+FROM registry.greboid.com/mirror/debian:latest as webp
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends webp python && \
     rm -rf /var/lib/apt/lists/*
@@ -9,7 +9,7 @@ RUN /bin/bash /app/minify.sh
 RUN ls /app
 RUN ls /app/images
 
-FROM golang:latest as builder
+FROM registry.greboid.com/mirror/golang:latest as builder
 WORKDIR /app
 COPY main.go /app
 COPY go.mod /app
