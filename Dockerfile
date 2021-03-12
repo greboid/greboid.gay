@@ -6,19 +6,18 @@ WORKDIR /app
 COPY images/. /app
 COPY minify.sh /app
 RUN /bin/bash /app/minify.sh
-RUN ls /app
-RUN ls /app/images
 
 FROM registry.greboid.com/mirror/golang:latest as builder
 WORKDIR /app
 COPY main.go /app
 COPY go.mod /app
+COPY go.sum /app
 RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o main .
 
 FROM scratch
-WORKDIR /app
-COPY --from=builder /app/main /app
-COPY ./templates/. /app/templates/
-COPY --from=webp /app/images/. /app/images
+WORKDIR /
+COPY --from=builder /app/main /gay-site
+COPY ./templates/. /templates/
+COPY --from=webp /app/images/. /images
 EXPOSE 8080
-CMD ["/app/main"]
+CMD ["/gay-site"]

@@ -1,3 +1,3 @@
-module github.com/greboid/dioberg.co.uk
+module github.com/greboid/greboid.gay
 
 go 1.16
