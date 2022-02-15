@@ -1,44 +1,22 @@
-FROM registry.greboid.com/mirror/debian:latest as webp
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends webp python && \
-    rm -rf /var/lib/apt/lists/*
-WORKDIR /app
-COPY images/. /app
-COPY minify.sh /app
-RUN /bin/bash /app/minify.sh
+#Minify + Image optimisation
+FROM reg.g5d.dev/alpine as minify
+RUN apk add --no-cache libwebp-tools;
+COPY --chown=65532:65532 images/. /app/images/
+USER 65532:65532
+RUN find /app \( -name '*.jpg' -o -name '*.png' -o -name '*.jpeg' \) -exec cwebp -q 60 "{}" -o "{}.webp" \;;
 
-FROM registry.greboid.com/mirror/golang:latest as builder
 
-ENV USER=appuser
-ENV UID=10001
+#Build the server
+FROM reg.g5d.dev/golang:latest as builder
+COPY main.go /app/
+COPY go.mod /app/
+COPY go.sum /app/
+RUN cd /app; CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o main .
 
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    "${USER}"
-
-WORKDIR /app
-COPY main.go /app
-COPY go.mod /app
-COPY go.sum /app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o main .
-
-FROM scratch
-WORKDIR /
-
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /etc/group /etc/group
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-
-COPY --from=builder /app/main /gay-site
+#Serve, run
+FROM reg.g5d.dev/base:latest
+COPY --from=builder /app/main /greboid.gay
 COPY ./templates/. /templates/
-COPY --from=webp /app/images/. /images
-
+COPY --from=minify /app/images/. /images
 EXPOSE 8080
-USER appuser:appuser
-CMD ["/gay-site"]
+CMD ["/greboid.gay"]
