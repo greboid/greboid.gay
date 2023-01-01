@@ -1,39 +1,15 @@
-name: docker build
+name: build
 on:
   push:
     branches:
       - master
+    tags:
+      - v*
 jobs:
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Log in to GHCR
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_TOKEN }}
-
-      - name: Build image
-        id: build-image
-        uses: redhat-actions/buildah-build@v2.11
-        with:
-          dockerfiles: Dockerfile
-          image: greboid.gay
-          tags: latest
-          extra-args: >
-            --timestamp
-            0
-
-      - name: Push to dioberg registry
-        uses: redhat-actions/push-to-registry@v2.7
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          registry: ${{ secrets.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASS }}
-          tags: latest
+  test:
+    uses: greboid/.github/.github/workflows/checkout-and-test-go.yml@master
+    secrets: inherit
+  container:
+    uses: greboid/.github/.github/workflows/checkout-build-and-push-docker.yml@master
+    secrets: inherit
+    needs: [test]
