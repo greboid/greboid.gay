@@ -6,11 +6,12 @@ on:
     tags:
       - v*
 jobs:
-  test:
+  - name: test
     uses: greboid/.github/.github/workflows/checkout-and-test-go.yml@master
     secrets: inherit
-  container:
+  - name: container
     uses: greboid/.github/.github/workflows/checkout-build-and-push-docker.yml@master
     with:
       registry: ${{ secrets.REGISTRY }}
+    secrets: inherit
     needs: [test]
