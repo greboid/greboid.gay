@@ -1,3 +1,3 @@
 module github.com/greboid/greboid.gay
 
-go 1.19
+go 1.20
