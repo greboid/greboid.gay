@@ -13,6 +13,8 @@ jobs:
   container:
     uses: greboid/.github/.github/workflows/docker.yml@master
     with:
+      image: 'greboid.gay'
       registry: 'reg.g5d.dev'
+      preloginreg: true
     secrets: inherit
     needs: [ test ]
