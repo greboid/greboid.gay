@@ -16,8 +16,8 @@ RUN CGO_ENABLED=0 go build -trimpath -tags 'netgo,osusergo' -ldflags='-s -w -ext
 
 #Serve, run
 FROM ghcr.io/greboid/dockerbase/nonroot:1.20251213.0
-COPY --from=builder /app/main /greboid.gay
-COPY ./templates/. /templates/
-COPY --from=minify /app/images/. /images
+COPY --chown=65532:65532 --from=builder /app/main /home/nonroot/greboid.gay
+COPY --chown=65532:65532 ./templates/. /home/nonroot/templates/
+COPY --chown=65532:65532 --from=minify /app/images/. /home/nonroot/images
 EXPOSE 8080
-CMD ["/greboid.gay"]
+CMD ["/home/nonroot/greboid.gay"]
