@@ -1,5 +1,5 @@
 #Minify + Image optimisation
-FROM reg.g5d.dev/alpine as minify
+FROM alpine:3.23.2 AS minify
 RUN apk add --no-cache libwebp-tools;
 COPY --chown=65532:65532 images/. /app/images/
 USER 65532:65532
@@ -7,14 +7,15 @@ RUN find /app \( -name '*.jpg' -o -name '*.png' -o -name '*.jpeg' \) -exec cwebp
 
 
 #Build the server
-FROM reg.g5d.dev/golang:latest as builder
+FROM golang:1.25.5 as builder
 COPY main.go /app/
 COPY go.mod /app/
 COPY go.sum /app/
-RUN cd /app; CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o main .
+WORKDIR /app
+RUN CGO_ENABLED=0 go build -trimpath -tags 'netgo,osusergo' -ldflags='-s -w -extldflags "-static"' -o /app/main .
 
 #Serve, run
-FROM reg.g5d.dev/base:latest
+FROM ghcr.io/greboid/dockerbase/nonroot:1.20251213.0
 COPY --from=builder /app/main /greboid.gay
 COPY ./templates/. /templates/
 COPY --from=minify /app/images/. /images
