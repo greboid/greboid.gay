@@ -1,5 +1,5 @@
 #Minify + Image optimisation
-FROM alpine:3.23.2 AS minify
+FROM alpine:3.23.3 AS minify
 RUN apk add --no-cache libwebp-tools;
 COPY --chown=65532:65532 images/. /app/images/
 USER 65532:65532
