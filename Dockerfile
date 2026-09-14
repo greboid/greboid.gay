@@ -7,7 +7,7 @@ RUN find /app \( -name '*.jpg' -o -name '*.png' -o -name '*.jpeg' \) -exec cwebp
 
 
 #Build the server
-FROM golang:1.27 as builder
+FROM golang:1.27.1 as builder
 COPY main.go /app/
 COPY go.mod /app/
 COPY go.sum /app/
