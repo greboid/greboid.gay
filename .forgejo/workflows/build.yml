@@ -26,5 +26,5 @@ jobs:
         with:
           audience: u:1:224a368c-1b2e-426f-b063-61f6fbafc2a7
       - uses: actions/toolkit/docker-push@master
-         with:                                                                                                                                                                    
-           tags: git.mouse-lake.ts.net/greboid/greboid.com:latest 
+        with:                                                                                                                                                                    
+          tags: git.mouse-lake.ts.net/greboid/greboid.com:latest 
